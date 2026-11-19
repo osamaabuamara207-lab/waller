@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="محفظة المغترب">
+    <title>محفظة المغترب الذكية | إدارة السيولة والمصاريف</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'Tajawal', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#162032',
+                            950: '#090e1a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            background-color: #090e1a;
+            color: #f1f5f9;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .gradient-hero {
+            background: linear-gradient(135deg, #065f46 0%, #0f172a 55%, #1e1b4b 100%);
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between pb-20 md:pb-8 selection:bg-emerald-500 selection:text-white">
+
+    <!-- Top Header Navigation -->
+    <header class="sticky top-0 z-30 glass-card border-b border-slate-800/80">
+        <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-900/40 shrink-0">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-base md:text-lg font-extrabold tracking-tight text-white">محفظة المغترب</h1>
+                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">JOD د.أ</span>
+                    </div>
+                    <p class="text-xs text-slate-400 hidden sm:block">إدارة السيولة النقدية ومطابقة الكاش الفعلي للطلاب</p>
+                </div>
+            </div>
+
+            <!-- Action Toolbar (Backup / Restore / Sample Data) -->
+            <div class="flex items-center gap-2">
+                <button id="btnLoadDemo" type="button" class="text-xs font-semibold px-2.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5" title="تحميل بيانات تجريبية">
+                    <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span class="hidden md:inline">بيانات تجريبية</span>
+                </button>
+                <button id="btnExportJson" type="button" class="text-xs font-semibold px-2.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 transition flex items-center gap-1.5" title="تصدير نسخة احتياطية JSON">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    <span class="hidden sm:inline">تصدير</span>
+                </button>
+                <button id="btnImportTrigger" type="button" class="text-xs font-semibold px-2.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 transition flex items-center gap-1.5" title="استيراد نسخة احتياطية JSON">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                    </svg>
+                    <span class="hidden sm:inline">استيراد</span>
+                </button>
+                <input type="file" id="fileImportJson" accept=".json,application/json" class="hidden">
+                <button id="btnResetAll" type="button" class="text-xs font-semibold p-2 rounded-lg bg-rose-950/50 hover:bg-rose-900/60 text-rose-400 border border-rose-800/50 transition" title="تصفير جميع البيانات">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl w-full mx-auto px-4 py-5 space-y-6 flex-1">
+
+        <!-- Total Liquidity Banner & Quick Stats -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <!-- Total Liquidity Card -->
+            <div class="lg:col-span-5 gradient-hero rounded-2xl p-5 border border-emerald-500/20 shadow-xl flex flex-col justify-between relative overflow-hidden">
+                <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="flex items-start justify-between gap-2">
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-emerald-300/90 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            إجمالي السيولة الكلية المتاحة
+                        </span>
+                        <div class="mt-2 flex items-baseline gap-2">
+                            <span id="totalLiquidityDisplay" class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight" dir="ltr">0.00</span>
+                            <span class="text-sm font-bold text-emerald-300">د.أ (JOD)</span>
+                        </div>
+                    </div>
+                    <span id="lastUpdateBadge" class="text-[11px] bg-slate-900/60 text-slate-300 px-2.5 py-1 rounded-lg border border-white/10">
+                        محدث لحظياً
+                    </span>
+                </div>
+
+                <!-- Liquidity Distribution Bar -->
+                <div class="mt-5 space-y-2">
+                    <div class="flex justify-between text-xs text-slate-300">
+                        <span>توزيع السيولة</span>
+                        <span id="liquidityRatioText" class="text-slate-400">كاش 0% • محفظة 0% • بنك 0%</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-slate-900/80 rounded-full overflow-hidden flex p-0.5 gap-0.5">
+                        <div id="barCash" class="bg-emerald-400 h-full rounded-r-full transition-all duration-500" style="width: 33%"></div>
+                        <div id="barWallet" class="bg-amber-400 h-full transition-all duration-500" style="width: 33%"></div>
+                        <div id="barBank" class="bg-indigo-400 h-full rounded-l-full transition-all duration-500" style="width: 34%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3 Individual Accounts Cards -->
+            <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                <!-- 1. Physical Cash -->
+                <div class="glass-card rounded-2xl p-4 flex flex-col justify-between border-t-2 border-t-emerald-500 hover:border-slate-700 transition">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">الكاش الفعلي</span>
+                            <button type="button" data-edit-account="cash" class="btn-edit-initial text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition" title="تعديل رصيد البداية">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-1.5">النقود الورقية والمعدنية بالجيب</p>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex items-baseline gap-1.5">
+                            <span id="balanceCash" class="text-2xl font-extrabold text-white" dir="ltr">0.00</span>
+                            <span class="text-xs text-slate-400 font-semibold">د.أ</span>
+                        </div>
+                        <div class="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                            <span>رصيد البداية:</span>
+                            <span id="initCash" dir="ltr" class="font-semibold text-slate-300">0.00 د.أ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. E-Wallet -->
+                <div class="glass-card rounded-2xl p-4 flex flex-col justify-between border-t-2 border-t-amber-500 hover:border-slate-700 transition">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">المحفظة الإلكترونية</span>
+                            <button type="button" data-edit-account="wallet" class="btn-edit-initial text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition" title="تعديل رصيد البداية">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-1.5">Orange Money / CliQ / محافظ</p>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex items-baseline gap-1.5">
+                            <span id="balanceWallet" class="text-2xl font-extrabold text-white" dir="ltr">0.00</span>
+                            <span class="text-xs text-slate-400 font-semibold">د.أ</span>
+                        </div>
+                        <div class="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                            <span>رصيد البداية:</span>
+                            <span id="initWallet" dir="ltr" class="font-semibold text-slate-300">0.00 د.أ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Bank Account (ATM) -->
+                <div class="glass-card rounded-2xl p-4 flex flex-col justify-between border-t-2 border-t-indigo-500 hover:border-slate-700 transition">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20">الحساب البنكي ATM</span>
+                            <button type="button" data-edit-account="bank" class="btn-edit-initial text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition" title="تعديل رصيد البداية">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-1.5">بطاقة الصراف الآلي والتحويلات</p>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex items-baseline gap-1.5">
+                            <span id="balanceBank" class="text-2xl font-extrabold text-white" dir="ltr">0.00</span>
+                            <span class="text-xs text-slate-400 font-semibold">د.أ</span>
+                        </div>
+                        <div class="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                            <span>رصيد البداية:</span>
+                            <span id="initBank" dir="ltr" class="font-semibold text-slate-300">0.00 د.أ</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Analytics Strip -->
+        <section class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <div class="glass-card rounded-xl p-3.5 flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400">مصاريف اليوم</p>
+                    <p class="text-base font-bold text-white"><span id="statTodayExpense" dir="ltr">0.00</span> <span class="text-xs font-normal text-slate-400">د.أ</span></p>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-xl p-3.5 flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400">مصاريف الشهر الحالي</p>
+                    <p class="text-base font-bold text-white"><span id="statMonthExpense" dir="ltr">0.00</span> <span class="text-xs font-normal text-slate-400">د.أ</span></p>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-xl p-3.5 flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>
+                    </svg>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-xs text-slate-400">التصنيف الأكثر استنزافاً</p>
+                    <p id="statTopCategory" class="text-sm font-bold text-white truncate">لا توجد مصاريف بعد</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mobile Navigation Tabs (Visible on small screens to switch views cleanly, or show all on desktop) -->
+        <div class="flex md:hidden bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+            <button type="button" data-mobile-tab="tab-add" class="mobile-tab-btn flex-1 py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white transition">تسجيل عملية</button>
+            <button type="button" data-mobile-tab="tab-audit" class="mobile-tab-btn flex-1 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition">فحص الكاش</button>
+            <button type="button" data-mobile-tab="tab-history" class="mobile-tab-btn flex-1 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition">السجل والتقارير</button>
+        </div>
+
+        <!-- Main Workspace Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+            <!-- Right Column: Add Transaction + Physical Cash Audit (5 cols on lg) -->
+            <div class="lg:col-span-5 space-y-6">
+
+                <!-- 1. Add Transaction Card -->
+                <section id="sectionAddTransaction" class="glass-card rounded-2xl p-5 border border-slate-800">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-base font-bold text-white flex items-center gap-2">
+                            <span class="w-2 h-5 rounded-full bg-emerald-500"></span>
+                            تسجيل حركة مالية جديدة
+                        </h2>
+                        <span class="text-[11px] text-slate-400">دقة القرش (0.00 د.أ)</span>
+                    </div>
+
+                    <!-- Transaction Type Selector -->
+                    <div class="grid grid-cols-3 gap-2 p-1 bg-slate-900 rounded-xl border border-slate-800 mb-4">
+                        <button type="button" data-tx-type="expense" class="tx-type-btn py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-rose-600 text-white shadow">
+                            <span>مصروف</span>
+                        </button>
+                        <button type="button" data-tx-type="income" class="tx-type-btn py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-white">
+                            <span>دخل / إيداع</span>
+                        </button>
+                        <button type="button" data-tx-type="transfer" class="tx-type-btn py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-white">
+                            <span>تحويل داخلي</span>
+                        </button>
+                    </div>
+
+                    <form id="formTransaction" class="space-y-3.5">
+                        <input type="hidden" id="txTypeInput" value="expense">
+
+                        <!-- Amount Input -->
+                        <div>
+                            <label for="txAmount" class="block text-xs font-semibold text-slate-300 mb-1.5">المبلغ (بالدينار الأردني JOD)</label>
+                            <div class="relative">
+                                <input type="number" id="txAmount" step="0.01" min="0.01" required placeholder="0.00" dir="ltr"
+                                    class="w-full bg-slate-900/90 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-xl py-2.5 pl-14 pr-4 text-left text-lg font-extrabold text-white placeholder-slate-600 outline-none transition">
+                                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">JOD</span>
+                            </div>
+                        </div>
+
+                        <!-- Account Selection (Single Account for Expense/Income) -->
+                        <div id="singleAccountWrapper">
+                            <label id="singleAccountLabel" for="txAccount" class="block text-xs font-semibold text-slate-300 mb-1.5">الخصم من حساب</label>
+                            <select id="txAccount" class="w-full bg-slate-900/90 border border-slate-700 focus:border-emerald-500 rounded-xl py-2.5 px-3.5 text-sm text-white outline-none transition">
+                                <option value="cash">💵 الكاش الفعلي (النقود بالجيب)</option>
+                                <option value="wallet">📱 المحفظة الإلكترونية (Orange Money)</option>
+                                <option value="bank">🏧 الحساب البنكي (بطاقة الصراف ATM)</option>
+                            </select>
+                        </div>
+
+                        <!-- Transfer Accounts (From -> To) -->
+                        <div id="transferAccountsWrapper" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label for="txFromAccount" class="block text-xs font-semibold text-rose-300 mb-1.5">سحب / تحويل من</label>
+                                <select id="txFromAccount" class="w-full bg-slate-900/90 border border-slate-700 focus:border-emerald-500 rounded-xl py-2.5 px-3 text-xs text-white outline-none transition">
+                                    <option value="bank">🏧 الحساب البنكي (ATM)</option>
+                                    <option value="wallet">📱 المحفظة الإلكترونية</option>
+                                    <option value="cash">💵 الكاش الفعلي</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="txToAccount" class="block text-xs font-semibold text-emerald-300 mb-1.5">إيداع إلى</label>
+                                <select id="txToAccount" class="w-full bg-slate-900/90 border border-slate-700 focus:border-emerald-500 rounded-xl py-2.5 px-3 text-xs text-white outline-none transition">
+                                    <option value="cash">💵 الكاش الفعلي</option>
+                                    <option value="wallet">📱 المحفظة الإلكترونية</option>
+                                    <option value="bank">🏧 الحساب البنكي (ATM)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Quick Transfer Presets -->
+                        <div id="transferPresetsWrapper" class="hidden">
+                            <div class="flex flex-wrap gap-1.5">
+                                <button type="button" data-preset-from="bank" data-preset-to="cash" data-preset-desc="سحب كاش من الصراف الآلي ATM" class="preset-transfer-btn text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">
+                                    🏧 سحب صراف (بنك ← كاش)
+                                </button>
+                                <button type="button" data-preset-from="bank" data-preset-to="wallet" data-preset-desc="شحن المحفظة الإلكترونية من البنك" class="preset-transfer-btn text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">
+                                    📱 شحن محفظة (بنك ← محفظة)
+                                </button>
+                                <button type="button" data-preset-from="wallet" data-preset-to="cash" data-preset-desc="سحب نقدي من المحفظة الإلكترونية" class="preset-transfer-btn text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">
+                                    💵 سحب من المحفظة (محفظة ← كاش)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Category Selection (For Expense) -->
+                        <div id="categoryWrapper">
+                            <label for="txCategory" class="block text-xs font-semibold text-slate-300 mb-1.5">التصنيف</label>
+                            <select id="txCategory" class="w-full bg-slate-900/90 border border-slate-700 focus:border-emerald-500 rounded-xl py-2.5 px-3.5 text-sm text-white outline-none transition">
+                                <option value="طعام">🍔 طعام ومطاعم وكافتيريا</option>
+                                <option value="مواصلات">🚌 مواصلات وتنقل</option>
+                                <option value="دراسة">📚 دراسة وقرطاسية وتصوير</option>
+                                <option value="سكن">🏠 سكن وإيجار ومستلزمات</option>
+                                <option value="فواتير">⚡ فواتير واتصالات وإنترنت</option>
+                                <option value="ترفيه">☕ ترفيه وطلعات</option>
+                                <option value="أخرى">📦 أخرى</option>
+                            </select>
+                        </div>
+
+                        <!-- Description & Date/Time -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label for="txDesc" class="block text-xs font-semibold text-slate-300 mb-1.5">البيان / الوصف</label>
+                                <input type="text" id="txDesc" required placeholder="مثال: غداء، باص الجامعة..."
+                                    class="w-full bg-slate-900/90 border border-slate-700 focus:border-emerald-500 rounded-xl py-2.5 px-3.5 text-xs text-white placeholder-slate-500 outline-none transition">
+                            </div>
+                            <div>
+                                <label for="txDateTime" class="block text-xs font-semibold text-slate-300 mb-1.5">التاريخ والوقت</label>
+                                <input type="datetime-local" id="txDateTime" required dir="ltr"
+                                    class="w-full bg-slate-900/90 border border-slate-700 focus:border-emerald-500 rounded-xl py-2 px-3 text-xs text-white outline-none transition">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btnSubmitTx" class="w-full py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-lg shadow-emerald-900/30 transition flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            <span>حفظ العملية وتحديث الرصيد</span>
+                        </button>
+                    </form>
+                </section>
+
+                <!-- 2. Physical Cash Audit & Anti-Loss Check Card -->
+                <section id="sectionCashAudit" class="glass-card rounded-2xl p-5 border border-slate-800 relative overflow-hidden">
+                    <div class="flex items-start justify-between gap-2 mb-3">
+                        <div>
+                            <h2 class="text-base font-bold text-white flex items-center gap-2">
+                                <span class="w-2 h-5 rounded-full bg-amber-400"></span>
+                                مطابقة الكاش الفيزيائي (فحص الفقدان)
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">عُدّ النقود الورقية والمعدنية بيدك الآن للتحقق من عدم ضياع أي قرش</p>
+                        </div>
+                        <span class="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                        </span>
+                    </div>
+
+                    <!-- Recorded vs Physical Input -->
+                    <div class="bg-slate-900/80 rounded-xl p-3.5 border border-slate-800 mb-4 flex items-center justify-between">
+                        <span class="text-xs text-slate-300">الرصيد المسجل برمجياً (الكاش):</span>
+                        <span class="text-sm font-extrabold text-emerald-400"><span id="auditExpectedCash" dir="ltr">0.00</span> د.أ</span>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label for="inputActualCash" class="block text-xs font-semibold text-slate-300 mb-1.5">أدخل المبلغ الفعلي الموجود بيدك الآن:</label>
+                            <div class="flex gap-2">
+                                <div class="relative flex-1">
+                                    <input type="number" id="inputActualCash" step="0.01" min="0" placeholder="مثال: 24.50" dir="ltr"
+                                        class="w-full bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-xl py-2.5 pl-12 pr-3.5 text-left text-base font-bold text-white outline-none transition">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">JOD</span>
+                                </div>
+                                <button type="button" id="btnCheckAudit" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition shrink-0">
+                                    تحقق الآن
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Audit Result Box -->
+                        <div id="auditResultContainer" class="hidden rounded-xl p-4 border transition-all">
+                            <div class="flex items-start gap-3">
+                                <div id="auditStatusIcon" class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5"></div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 id="auditStatusTitle" class="text-sm font-extrabold"></h3>
+                                    <p id="auditStatusMessage" class="text-xs mt-1 leading-relaxed"></p>
+                                    <div id="auditLastTxInfo" class="mt-2.5 pt-2.5 border-t border-white/10 text-[11px] space-y-1"></div>
+                                    <button type="button" id="btnReconcileCash" class="hidden mt-3 w-full py-2 px-3 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition flex items-center justify-center gap-1.5">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                        </svg>
+                                        <span>تسوية الرصيد تلقائياً وتسجيل حركة الفارق</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Left Column: Transactions History, Filters & Category Breakdown (7 cols on lg) -->
+            <div id="sectionHistory" class="lg:col-span-7 space-y-6">
+
+                <!-- Category Breakdown Bar Card -->
+                <div class="glass-card rounded-2xl p-5 border border-slate-800">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                            <span class="w-2 h-4 rounded-full bg-purple-500"></span>
+                            توزيع المصاريف حسب التصنيف
+                        </h2>
+                        <span id="totalExpensesBadge" class="text-xs font-bold text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-lg border border-rose-500/20">إجمالي المصاريف: 0.00 د.أ</span>
+                    </div>
+                    <div id="categoryBreakdownList" class="space-y-2.5">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- Transactions Log & Search/Filters -->
+                <div class="glass-card rounded-2xl p-5 border border-slate-800">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-white flex items-center gap-2">
+                                <span class="w-2 h-5 rounded-full bg-sky-500"></span>
+                                سجل العمليات الزمني
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">جميع الحركات مرتبة من الأحدث للأقدم مع إمكانية الحذف والاسترجاع</p>
+                        </div>
+                        <span id="txCountBadge" class="text-xs font-semibold text-slate-300 bg-slate-800 px-3 py-1 rounded-lg border border-slate-700 self-start sm:self-auto">0 عملية</span>
+                    </div>
+
+                    <!-- Filter Bar -->
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 mb-4">
+                        <div class="sm:col-span-5 relative">
+                            <input type="text" id="filterSearch" placeholder="ابحث بالوصف أو الكلمات المفتاحية..."
+                                class="w-full bg-slate-900 border border-slate-700 focus:border-sky-500 rounded-xl py-2 pr-9 pl-3 text-xs text-white placeholder-slate-500 outline-none transition">
+                            <svg class="w-4 h-4 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="sm:col-span-4">
+                            <select id="filterAccount" class="w-full bg-slate-900 border border-slate-700 focus:border-sky-500 rounded-xl py-2 px-3 text-xs text-white outline-none transition">
+                                <option value="all">كل الحسابات</option>
+                                <option value="cash">💵 الكاش الفعلي</option>
+                                <option value="wallet">📱 المحفظة الإلكترونية</option>
+                                <option value="bank">🏧 الحساب البنكي ATM</option>
+                            </select>
+                        </div>
+                        <div class="sm:col-span-3">
+                            <select id="filterCategory" class="w-full bg-slate-900 border border-slate-700 focus:border-sky-500 rounded-xl py-2 px-3 text-xs text-white outline-none transition">
+                                <option value="all">كل التصنيفات</option>
+                                <option value="طعام">🍔 طعام</option>
+                                <option value="مواصلات">🚌 مواصلات</option>
+                                <option value="دراسة">📚 دراسة</option>
+                                <option value="سكن">🏠 سكن</option>
+                                <option value="فواتير">⚡ فواتير</option>
+                                <option value="ترفيه">☕ ترفيه</option>
+                                <option value="أخرى">📦 أخرى</option>
+                                <option value="دخل">💰 دخل / إيداع</option>
+                                <option value="تحويل">🔄 تحويل داخلي</option>
+                                <option value="تسوية">⚖️ تسوية كاش</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Transactions List -->
+                    <div id="transactionsList" class="space-y-2.5 max-h-[520px] overflow-y-auto pr-1">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal: Edit Initial Balance -->
+    <div id="modalInitialBalance" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-card bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 id="modalAccountTitle" class="text-base font-bold text-white">تعديل رصيد البداية</h3>
+                <button type="button" id="btnCloseModalInit" class="text-slate-400 hover:text-white p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+                رصيد البداية هو المبلغ الأساسي الذي انطلقت منه في هذا الحساب قبل احتساب العمليات المسجلة.
+            </p>
+            <form id="formInitialBalance" class="space-y-4">
+                <input type="hidden" id="editAccountKey">
+                <div>
+                    <label for="inputInitialAmount" class="block text-xs font-semibold text-slate-300 mb-1.5">رصيد البداية (JOD د.أ)</label>
+                    <input type="number" id="inputInitialAmount" step="0.01" required dir="ltr"
+                        class="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 rounded-xl py-2.5 px-3.5 text-left text-lg font-extrabold text-white outline-none">
+                </div>
+                <div class="flex gap-2">
+                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition">
+                        حفظ التعديل
+                    </button>
+                    <button type="button" id="btnCancelModalInit" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+                        إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Confirmation Dialog (For Reset or Delete) -->
+    <div id="modalConfirm" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-card bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+            <h3 id="confirmTitle" class="text-base font-bold text-white">تأكيد الإجراء</h3>
+            <p id="confirmMessage" class="text-xs text-slate-300 leading-relaxed"></p>
+            <div class="flex gap-2 pt-1">
+                <button type="button" id="btnConfirmYes" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition">
+                    نعم، تأكيد
+                </button>
+                <button type="button" id="btnConfirmNo" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastContainer" class="fixed bottom-5 left-5 z-50 space-y-2 pointer-events-none"></div>
+
+    <script>
+        (function () {
+            'use strict';
+
+            const STORAGE_KEY = 'expat_student_wallet_v1';
+
+            const ACCOUNT_NAMES = {
+                cash: 'الكاش الفعلي',
+                wallet: 'المحفظة الإلكترونية',
+                bank: 'الحساب البنكي ATM'
+            };
+
+            const CATEGORY_META = {
+                'طعام': { icon: '🍔', color: 'bg-amber-500' },
+                'مواصلات': { icon: '🚌', color: 'bg-sky-500' },
+                'دراسة': { icon: '📚', color: 'bg-indigo-500' },
+                'سكن': { icon: '🏠', color: 'bg-emerald-500' },
+                'فواتير': { icon: '⚡', color: 'bg-purple-500' },
+                'ترفيه': { icon: '☕', color: 'bg-pink-500' },
+                'أخرى': { icon: '📦', color: 'bg-slate-400' },
+                'دخل': { icon: '💰', color: 'bg-emerald-400' },
+                'تحويل': { icon: '🔄', color: 'bg-cyan-400' },
+                'تسوية': { icon: '⚖️', color: 'bg-rose-400' }
+            };
+
+            // Default State
+            let appState = {
+                initialBalances: {
+                    cash: 35.00,
+                    wallet: 20.00,
+                    bank: 180.00
+                },
+                transactions: []
+            };
+
+            let pendingConfirmCallback = null;
+            let lastAuditDiff = 0;
+
+            // Safe LocalStorage Helpers
+            function loadState() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (parsed && parsed.initialBalances && Array.isArray(parsed.transactions)) {
+                            appState = {
+                                initialBalances: {
+                                    cash: roundJOD(parsed.initialBalances.cash || 0),
+                                    wallet: roundJOD(parsed.initialBalances.wallet || 0),
+                                    bank: roundJOD(parsed.initialBalances.bank || 0)
+                                },
+                                transactions: parsed.transactions
+                            };
+                            return;
+                        }
+                    }
+                    // Seed helpful initial sample transactions if first time
+                    seedStarterTransactions();
+                } catch (e) {
+                    seedStarterTransactions();
+                }
+            }
+
+            function saveState() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+                } catch (e) {
+                    showToast('تعذر الحفظ التلقائي في المتصفح', 'error');
+                }
+            }
+
+            function roundJOD(val) {
+                const num = parseFloat(val);
+                if (isNaN(num)) return 0;
+                return Math.round((num + Number.EPSILON) * 100) / 100;
+            }
+
+            function formatJOD(val) {
+                return roundJOD(val).toFixed(2);
+            }
+
+            function getCurrentDateTimeLocal() {
+                const now = new Date();
+                const offset = now.getTimezoneOffset() * 60000;
+                return new Date(now - offset).toISOString().slice(0, 16);
+            }
+
+            function seedStarterTransactions() {
+                const now = new Date();
+                const fmt = (minsAgo) => {
+                    const d = new Date(now.getTime() - minsAgo * 60000 - now.getTimezoneOffset() * 60000);
+                    return d.toISOString().slice(0, 16);
+                };
+
+                appState = {
+                    initialBalances: {
+                        cash: 25.00,
+                        wallet: 15.00,
+                        bank: 200.00
+                    },
+                    transactions: [
+                        {
+                            id: 'tx_' + (Date.now() - 300000),
+                            type: 'transfer',
+                            amount: 30.00,
+                            fromAccount: 'bank',
+                            toAccount: 'cash',
+                            category: 'تحويل',
+                            description: 'سحب كاش من صراف الجامعة',
+                            dateTime: fmt(240)
+                        },
+                        {
+                            id: 'tx_' + (Date.now() - 200000),
+                            type: 'expense',
+                            amount: 3.75,
+                            account: 'cash',
+                            category: 'طعام',
+                            description: 'وجبة غداء شاورما وعصير',
+                            dateTime: fmt(130)
+                        },
+                        {
+                            id: 'tx_' + (Date.now() - 100000),
+                            type: 'expense',
+                            amount: 1.50,
+                            account: 'cash',
+                            category: 'مواصلات',
+                            description: 'أجرة باص السكن - الجامعة',
+                            dateTime: fmt(60)
+                        },
+                        {
+                            id: 'tx_' + Date.now(),
+                            type: 'expense',
+                            amount: 6.00,
+                            account: 'wallet',
+                            category: 'فواتير',
+                            description: 'تجديد حزمة الإنترنت الشهرية',
+                            dateTime: fmt(15)
+                        }
+                    ]
+                };
+                saveState();
+            }
+
+            // Compute Account Balances dynamically from initialBalances + transactions
+            function calculateBalances() {
+                const balances = {
+                    cash: roundJOD(appState.initialBalances.cash),
+                    wallet: roundJOD(appState.initialBalances.wallet),
+                    bank: roundJOD(appState.initialBalances.bank)
+                };
+
+                for (const tx of appState.transactions) {
+                    const amt = roundJOD(tx.amount);
+                    if (tx.type === 'expense') {
+                        if (balances[tx.account] !== undefined) {
+                            balances[tx.account] = roundJOD(balances[tx.account] - amt);
+                        }
+                    } else if (tx.type === 'income') {
+                        if (balances[tx.account] !== undefined) {
+                            balances[tx.account] = roundJOD(balances[tx.account] + amt);
+                        }
+                    } else if (tx.type === 'transfer') {
+                        if (balances[tx.fromAccount] !== undefined) {
+                            balances[tx.fromAccount] = roundJOD(balances[tx.fromAccount] - amt);
+                        }
+                        if (balances[tx.toAccount] !== undefined) {
+                            balances[tx.toAccount] = roundJOD(balances[tx.toAccount] + amt);
+                        }
+                    }
+                }
+
+                const total = roundJOD(balances.cash + balances.wallet + balances.bank);
+                return { ...balances, total };
+            }
+
+            // Toast Notification
+            function showToast(message, type = 'success') {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                const colors = type === 'error'
+                    ? 'bg-rose-950 border-rose-500/40 text-rose-200'
+                    : type === 'info'
+                    ? 'bg-sky-950 border-sky-500/40 text-sky-200'
+                    : 'bg-emerald-950 border-emerald-500/40 text-emerald-200';
+
+                toast.className = `px-4 py-2.5 rounded-xl border shadow-lg text-xs font-bold flex items-center gap-2 transition-all duration-300 ${colors}`;
+                toast.innerHTML = `<span>${message}</span>`;
+                container.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 2800);
+            }
+
+            // Update UI
+            function renderAll() {
+                const balances = calculateBalances();
+
+                // Update Balances
+                document.getElementById('totalLiquidityDisplay').textContent = formatJOD(balances.total);
+                document.getElementById('balanceCash').textContent = formatJOD(balances.cash);
+                document.getElementById('balanceWallet').textContent = formatJOD(balances.wallet);
+                document.getElementById('balanceBank').textContent = formatJOD(balances.bank);
+
+                document.getElementById('initCash').textContent = formatJOD(appState.initialBalances.cash) + ' د.أ';
+                document.getElementById('initWallet').textContent = formatJOD(appState.initialBalances.wallet) + ' د.أ';
+                document.getElementById('initBank').textContent = formatJOD(appState.initialBalances.bank) + ' د.أ';
+
+                document.getElementById('auditExpectedCash').textContent = formatJOD(balances.cash);
+
+                // Liquidity Distribution Progress Bar
+                const positiveTotal = Math.max(0, balances.cash) + Math.max(0, balances.wallet) + Math.max(0, balances.bank);
+                let pCash = 0, pWallet = 0, pBank = 0;
+                if (positiveTotal > 0) {
+                    pCash = Math.round((Math.max(0, balances.cash) / positiveTotal) * 100);
+                    pWallet = Math.round((Math.max(0, balances.wallet) / positiveTotal) * 100);
+                    pBank = Math.max(0, 100 - pCash - pWallet);
+                }
+                document.getElementById('barCash').style.width = `${pCash}%`;
+                document.getElementById('barWallet').style.width = `${pWallet}%`;
+                document.getElementById('barBank').style.width = `${pBank}%`;
+                document.getElementById('liquidityRatioText').textContent = `كاش ${pCash}% • محفظة ${pWallet}% • بنك ${pBank}%`;
+
+                renderStatsAndCategories();
+                renderTransactionsList();
+            }
+
+            function renderStatsAndCategories() {
+                const now = new Date();
+                const todayPrefix = getCurrentDateTimeLocal().slice(0, 10);
+                const monthPrefix = todayPrefix.slice(0, 7);
+
+                let todayExpense = 0;
+                let monthExpense = 0;
+                let totalAllExpense = 0;
+                const catTotals = {};
+
+                for (const tx of appState.transactions) {
+                    if (tx.type === 'expense') {
+                        const amt = roundJOD(tx.amount);
+                        totalAllExpense = roundJOD(totalAllExpense + amt);
+                        const txDate = (tx.dateTime || '').slice(0, 10);
+                        const txMonth = (tx.dateTime || '').slice(0, 7);
+
+                        if (txDate === todayPrefix) {
+                            todayExpense = roundJOD(todayExpense + amt);
+                        }
+                        if (txMonth === monthPrefix) {
+                            monthExpense = roundJOD(monthExpense + amt);
+                        }
+
+                        const cat = tx.category || 'أخرى';
+                        catTotals[cat] = roundJOD((catTotals[cat] || 0) + amt);
+                    }
+                }
+
+                document.getElementById('statTodayExpense').textContent = formatJOD(todayExpense);
+                document.getElementById('statMonthExpense').textContent = formatJOD(monthExpense);
+                document.getElementById('totalExpensesBadge').textContent = `إجمالي المصاريف: ${formatJOD(totalAllExpense)} د.أ`;
+
+                // Find Top Draining Category
+                const sortedCats = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
+                const topCatEl = document.getElementById('statTopCategory');
+                if (sortedCats.length > 0) {
+                    const [topName, topVal] = sortedCats[0];
+                    const icon = (CATEGORY_META[topName] && CATEGORY_META[topName].icon) || '📦';
+                    topCatEl.textContent = `${icon} ${topName} (${formatJOD(topVal)} د.أ)`;
+                } else {
+                    topCatEl.textContent = 'لا توجد مصاريف بعد';
+                }
+
+                // Render Category Breakdown Bars
+                const breakdownContainer = document.getElementById('categoryBreakdownList');
+                if (sortedCats.length === 0) {
+                    breakdownContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-3">لم يتم تسجيل أي مصاريف حتى الآن</p>`;
+                    return;
+                }
+
+                breakdownContainer.innerHTML = sortedCats.map(([cat, amt]) => {
+                    const pct = totalAllExpense > 0 ? Math.round((amt / totalAllExpense) * 100) : 0;
+                    const meta = CATEGORY_META[cat] || { icon: '📦', color: 'bg-slate-500' };
+                    return `
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs">
+                                <span class="font-semibold text-slate-200">${meta.icon} ${cat}</span>
+                                <span class="text-slate-400"><strong class="text-white" dir="ltr">${formatJOD(amt)}</strong> د.أ (${pct}%)</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden">
+                                <div class="${meta.color} h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function formatReadableDate(isoStr) {
+                if (!isoStr) return '';
+                try {
+                    const d = new Date(isoStr);
+                    if (isNaN(d.getTime())) return isoStr.replace('T', ' ');
+                    return d.toLocaleString('ar-JO', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                } catch (e) {
+                    return isoStr.replace('T', ' ');
+                }
+            }
+
+            function renderTransactionsList() {
+                const searchVal = (document.getElementById('filterSearch').value || '').trim().toLowerCase();
+                const accFilter = document.getElementById('filterAccount').value;
+                const catFilter = document.getElementById('filterCategory').value;
+
+                // Sort newest first
+                const sorted = [...appState.transactions].sort((a, b) => {
+                    return (b.dateTime || '').localeCompare(a.dateTime || '');
+                });
+
+                const filtered = sorted.filter(tx => {
+                    // Account filter
+                    if (accFilter !== 'all') {
+                        if (tx.type === 'transfer') {
+                            if (tx.fromAccount !== accFilter && tx.toAccount !== accFilter) return false;
+                        } else {
+                            if (tx.account !== accFilter) return false;
+                        }
+                    }
+                    // Category filter
+                    if (catFilter !== 'all') {
+                        if (catFilter === 'دخل' && tx.type !== 'income') return false;
+                        else if (catFilter === 'تحويل' && tx.type !== 'transfer') return false;
+                        else if (catFilter !== 'دخل' && catFilter !== 'تحويل' && tx.category !== catFilter) return false;
+                    }
+                    // Search keyword
+                    if (searchVal) {
+                        const hay = `${tx.description || ''} ${tx.category || ''} ${tx.amount || ''}`.toLowerCase();
+                        if (!hay.includes(searchVal)) return false;
+                    }
+                    return true;
+                });
+
+                document.getElementById('txCountBadge').textContent = `${filtered.length} عملية`;
+                const listEl = document.getElementById('transactionsList');
+
+                if (filtered.length === 0) {
+                    listEl.innerHTML = `
+                        <div class="text-center py-10 border border-dashed border-slate-800 rounded-xl">
+                            <p class="text-sm font-bold text-slate-400">لا توجد عمليات مطابقة للبحث</p>
+                            <p class="text-xs text-slate-500 mt-1">جرب تغيير الفلتر أو سجل حركة مالية جديدة</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                listEl.innerHTML = filtered.map(tx => {
+                    let badgeClass = '';
+                    let sign = '';
+                    let accountLabel = '';
+                    let icon = '💸';
+
+                    if (tx.type === 'expense') {
+                        badgeClass = 'text-rose-400 bg-rose-500/10 border-rose-500/20';
+                        sign = '-';
+                        accountLabel = ACCOUNT_NAMES[tx.account] || tx.account;
+                        icon = (CATEGORY_META[tx.category] && CATEGORY_META[tx.category].icon) || '💸';
+                    } else if (tx.type === 'income') {
+                        badgeClass = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
+                        sign = '+';
+                        accountLabel = ACCOUNT_NAMES[tx.account] || tx.account;
+                        icon = '💰';
+                    } else if (tx.type === 'transfer') {
+                        badgeClass = 'text-sky-400 bg-sky-500/10 border-sky-500/20';
+                        sign = '⇄';
+                        accountLabel = `${ACCOUNT_NAMES[tx.fromAccount]} ← ${ACCOUNT_NAMES[tx.toAccount]}`;
+                        icon = '🔄';
+                    }
+
+                    const safeDesc = escapeHtml(tx.description || 'بدون وصف');
+                    const safeCat = escapeHtml(tx.category || (tx.type === 'income' ? 'دخل' : 'تحويل'));
+
+                    return `
+                        <div class="bg-slate-900/70 hover:bg-slate-900 border border-slate-800/90 rounded-xl p-3.5 flex items-center justify-between gap-3 transition">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-lg shrink-0">
+                                    ${icon}
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <p class="text-xs sm:text-sm font-bold text-white truncate">${safeDesc}</p>
+                                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700">${safeCat}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-[11px] text-slate-400 mt-1 flex-wrap">
+                                        <span>${accountLabel}</span>
+                                        <span>•</span>
+                                        <span dir="ltr">${formatReadableDate(tx.dateTime)}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2.5 shrink-0">
+                                <span class="text-xs sm:text-sm font-extrabold px-2.5 py-1 rounded-lg border ${badgeClass}" dir="ltr">
+                                    ${sign}${formatJOD(tx.amount)} JOD
+                                </span>
+                                <button type="button" data-delete-id="${tx.id}" class="btn-delete-tx text-slate-500 hover:text-rose-400 p-1.5 rounded-lg hover:bg-rose-500/10 transition" title="حذف العملية واسترجاع الرصيد">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function escapeHtml(str) {
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+            }
+
+            // Transaction Type Switching
+            function setTransactionType(type) {
+                document.getElementById('txTypeInput').value = type;
+                const buttons = document.querySelectorAll('.tx-type-btn');
+                buttons.forEach(btn => {
+                    const bType = btn.getAttribute('data-tx-type');
+                    if (bType === type) {
+                        const activeColor = type === 'expense' ? 'bg-rose-600' : type === 'income' ? 'bg-emerald-600' : 'bg-sky-600';
+                        btn.className = `tx-type-btn py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${activeColor} text-white shadow`;
+                    } else {
+                        btn.className = 'tx-type-btn py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-white';
+                    }
+                });
+
+                const singleAccWrap = document.getElementById('singleAccountWrapper');
+                const singleAccLabel = document.getElementById('singleAccountLabel');
+                const transferWrap = document.getElementById('transferAccountsWrapper');
+                const presetsWrap = document.getElementById('transferPresetsWrapper');
+                const catWrap = document.getElementById('categoryWrapper');
+
+                if (type === 'expense') {
+                    singleAccWrap.classList.remove('hidden');
+                    singleAccLabel.textContent = 'الخصم من حساب';
+                    transferWrap.classList.add('hidden');
+                    presetsWrap.classList.add('hidden');
+                    catWrap.classList.remove('hidden');
+                } else if (type === 'income') {
+                    singleAccWrap.classList.remove('hidden');
+                    singleAccLabel.textContent = 'إيداع في حساب';
+                    transferWrap.classList.add('hidden');
+                    presetsWrap.classList.add('hidden');
+                    catWrap.classList.add('hidden');
+                } else if (type === 'transfer') {
+                    singleAccWrap.classList.add('hidden');
+                    transferWrap.classList.remove('hidden');
+                    presetsWrap.classList.remove('hidden');
+                    catWrap.classList.add('hidden');
+                }
+            }
+
+            // Physical Cash Audit Logic
+            function runCashAudit() {
+                const inputEl = document.getElementById('inputActualCash');
+                const rawVal = inputEl.value;
+                if (rawVal === '' || isNaN(parseFloat(rawVal))) {
+                    showToast('يرجى إدخال المبلغ الفعلي الموجود بيدك أولاً', 'error');
+                    return;
+                }
+
+                const actualCash = roundJOD(rawVal);
+                const balances = calculateBalances();
+                const expectedCash = balances.cash;
+                const diff = roundJOD(actualCash - expectedCash);
+                lastAuditDiff = diff;
+
+                const resultBox = document.getElementById('auditResultContainer');
+                const iconBox = document.getElementById('auditStatusIcon');
+                const titleEl = document.getElementById('auditStatusTitle');
+                const msgEl = document.getElementById('auditStatusMessage');
+                const lastTxEl = document.getElementById('auditLastTxInfo');
+                const btnReconcile = document.getElementById('btnReconcileCash');
+
+                resultBox.classList.remove('hidden');
+
+                // Find last cash transaction
+                const cashTxs = appState.transactions
+                    .filter(t => t.account === 'cash' || t.fromAccount === 'cash' || t.toAccount === 'cash')
+                    .sort((a, b) => (b.dateTime || '').localeCompare(a.dateTime || ''));
+
+                const lastCashTx = cashTxs.length > 0 ? cashTxs[0] : null;
+                const lastTxHtml = lastCashTx
+                    ? `<p>🕒 <strong>آخر حركة على الكاش:</strong> ${escapeHtml(lastCashTx.description)} (${formatJOD(lastCashTx.amount)} د.أ) بتاريخ <span dir="ltr">${formatReadableDate(lastCashTx.dateTime)}</span></p>`
+                    : `<p>🕒 لا توجد حركات سابقة مسجلة على حساب الكاش.</p>`;
+
+                if (Math.abs(diff) < 0.005) {
+                    // Match (Green)
+                    resultBox.className = 'rounded-xl p-4 border bg-emerald-950/50 border-emerald-500/40 text-emerald-100';
+                    iconBox.className = 'w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-emerald-500/20 text-emerald-400';
+                    iconBox.innerHTML = '✓';
+                    titleEl.textContent = 'متطابق تماماً (100%)';
+                    msgEl.textContent = `المبلغ الفعلي بيدك (${formatJOD(actualCash)} د.أ) يطابق الرصيد المسجل برمجياً بالقرش. لا يوجد أي نقص أو فقدان.`;
+                    lastTxEl.innerHTML = lastTxHtml;
+                    btnReconcile.classList.add('hidden');
+                } else if (diff < 0) {
+                    // Shortage / Loss (Red)
+                    const missingAmt = Math.abs(diff);
+                    resultBox.className = 'rounded-xl p-4 border bg-rose-950/60 border-rose-500/50 text-rose-100';
+                    iconBox.className = 'w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-rose-500/20 text-rose-400 font-bold';
+                    iconBox.innerHTML = '!';
+                    titleEl.textContent = `تنبيه: يوجد عجز / فقدان بقيمة ${formatJOD(missingAmt)} د.أ`;
+                    msgEl.textContent = `المفترض وجود ${formatJOD(expectedCash)} د.أ، لكن الموجود فعلياً ${formatJOD(actualCash)} د.أ. راجع مصاريفك منذ آخر حركة مسجلة أدناه:`;
+                    lastTxEl.innerHTML = lastTxHtml;
+                    btnReconcile.classList.remove('hidden');
+                } else {
+                    // Surplus (Blue)
+                    resultBox.className = 'rounded-xl p-4 border bg-sky-950/60 border-sky-500/50 text-sky-100';
+                    iconBox.className = 'w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-sky-500/20 text-sky-400 font-bold';
+                    iconBox.innerHTML = '+';
+                    titleEl.textContent = `يوجد فائض نقدي بقيمة +${formatJOD(diff)} د.أ`;
+                    msgEl.textContent = `الموجود بيدك (${formatJOD(actualCash)} د.أ) أكثر من المسجل برمجياً (${formatJOD(expectedCash)} د.أ). ربما نسيت تسجيل دخل أو سحب نقدي.`;
+                    lastTxEl.innerHTML = lastTxHtml;
+                    btnReconcile.classList.remove('hidden');
+                }
+            }
+
+            // Reconcile Physical Cash Discrepancy Automatically
+            function reconcileCashDiscrepancy() {
+                if (Math.abs(lastAuditDiff) < 0.005) return;
+
+                const isShortage = lastAuditDiff < 0;
+                const absAmt = roundJOD(Math.abs(lastAuditDiff));
+
+                const newTx = {
+                    id: 'tx_' + Date.now(),
+                    type: isShortage ? 'expense' : 'income',
+                    amount: absAmt,
+                    account: 'cash',
+                    category: 'تسوية',
+                    description: isShortage ? 'تسوية عجز نقدي بعد الجرد الفعلي' : 'تسوية فائض نقدي بعد الجرد الفعلي',
+                    dateTime: getCurrentDateTimeLocal()
+                };
+
+                appState.transactions.push(newTx);
+                saveState();
+                renderAll();
+                runCashAudit();
+                showToast('تمت تسوية رصيد الكاش الفعلي وتسجيل الحركة بنجاح');
+            }
+
+            // Confirmation Modal Helper
+            function openConfirmModal(title, message, onConfirm) {
+                document.getElementById('confirmTitle').textContent = title;
+                document.getElementById('confirmMessage').textContent = message;
+                pendingConfirmCallback = onConfirm;
+                document.getElementById('modalConfirm').classList.remove('hidden');
+            }
+
+            function closeConfirmModal() {
+                pendingConfirmCallback = null;
+                document.getElementById('modalConfirm').classList.add('hidden');
+            }
+
+            // Event Listeners Initialization
+            function initEvents() {
+                // Set default datetime
+                document.getElementById('txDateTime').value = getCurrentDateTimeLocal();
+
+                // Transaction type tabs
+                document.querySelectorAll('.tx-type-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        setTransactionType(btn.getAttribute('data-tx-type'));
+                    });
+                });
+
+                // Quick transfer presets
+                document.querySelectorAll('.preset-transfer-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.getElementById('txFromAccount').value = btn.getAttribute('data-preset-from');
+                        document.getElementById('txToAccount').value = btn.getAttribute('data-preset-to');
+                        document.getElementById('txDesc').value = btn.getAttribute('data-preset-desc');
+                        document.getElementById('txAmount').focus();
+                    });
+                });
+
+                // Form Submit Transaction
+                document.getElementById('formTransaction').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const type = document.getElementById('txTypeInput').value;
+                    const amount = roundJOD(document.getElementById('txAmount').value);
+                    const desc = document.getElementById('txDesc').value.trim();
+                    const dateTime = document.getElementById('txDateTime').value || getCurrentDateTimeLocal();
+
+                    if (amount <= 0) {
+                        showToast('يرجى إدخال مبلغ صحيح أكبر من صفر', 'error');
+                        return;
+                    }
+
+                    if (type === 'transfer') {
+                        const fromAcc = document.getElementById('txFromAccount').value;
+                        const toAcc = document.getElementById('txToAccount').value;
+                        if (fromAcc === toAcc) {
+                            showToast('لا يمكن التحويل لنفس الحساب! اختر حسابين مختلفين', 'error');
+                            return;
+                        }
+                        appState.transactions.push({
+                            id: 'tx_' + Date.now(),
+                            type: 'transfer',
+                            amount,
+                            fromAccount: fromAcc,
+                            toAccount: toAcc,
+                            category: 'تحويل',
+                            description: desc || `تحويل من ${ACCOUNT_NAMES[fromAcc]} إلى ${ACCOUNT_NAMES[toAcc]}`,
+                            dateTime
+                        });
+                    } else if (type === 'expense') {
+                        const acc = document.getElementById('txAccount').value;
+                        const cat = document.getElementById('txCategory').value;
+                        appState.transactions.push({
+                            id: 'tx_' + Date.now(),
+                            type: 'expense',
+                            amount,
+                            account: acc,
+                            category: cat,
+                            description: desc,
+                            dateTime
+                        });
+                    } else if (type === 'income') {
+                        const acc = document.getElementById('txAccount').value;
+                        appState.transactions.push({
+                            id: 'tx_' + Date.now(),
+                            type: 'income',
+                            amount,
+                            account: acc,
+                            category: 'دخل',
+                            description: desc,
+                            dateTime
+                        });
+                    }
+
+                    saveState();
+                    renderAll();
+
+                    // Reset form fields
+                    document.getElementById('txAmount').value = '';
+                    document.getElementById('txDesc').value = '';
+                    document.getElementById('txDateTime').value = getCurrentDateTimeLocal();
+                    showToast('تم حفظ العملية وتحديث الأرصدة فوراً');
+                });
+
+                // Delete Transaction Delegation
+                document.getElementById('transactionsList').addEventListener('click', (e) => {
+                    const delBtn = e.target.closest('.btn-delete-tx');
+                    if (!delBtn) return;
+                    const txId = delBtn.getAttribute('data-delete-id');
+                    const targetTx = appState.transactions.find(t => t.id === txId);
+                    if (!targetTx) return;
+
+                    openConfirmModal(
+                        'حذف العملية المالية',
+                        `هل أنت متأكد من حذف "${targetTx.description}" بقيمة ${formatJOD(targetTx.amount)} د.أ؟ سيتم استرجاع أثرها المالي على الحساب تلقائياً.`,
+                        () => {
+                            appState.transactions = appState.transactions.filter(t => t.id !== txId);
+                            saveState();
+                            renderAll();
+                            showToast('تم حذف العملية واسترجاع الرصيد');
+                        }
+                    );
+                });
+
+                // Edit Initial Balance Modal
+                document.querySelectorAll('.btn-edit-initial').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const accKey = btn.getAttribute('data-edit-account');
+                        document.getElementById('editAccountKey').value = accKey;
+                        document.getElementById('modalAccountTitle').textContent = `تعديل رصيد البداية - ${ACCOUNT_NAMES[accKey]}`;
+                        document.getElementById('inputInitialAmount').value = formatJOD(appState.initialBalances[accKey]);
+                        document.getElementById('modalInitialBalance').classList.remove('hidden');
+                        document.getElementById('inputInitialAmount').focus();
+                    });
+                });
+
+                const closeInitModal = () => document.getElementById('modalInitialBalance').classList.add('hidden');
+                document.getElementById('btnCloseModalInit').addEventListener('click', closeInitModal);
+                document.getElementById('btnCancelModalInit').addEventListener('click', closeInitModal);
+
+                document.getElementById('formInitialBalance').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const key = document.getElementById('editAccountKey').value;
+                    const val = roundJOD(document.getElementById('inputInitialAmount').value);
+                    if (appState.initialBalances[key] !== undefined) {
+                        appState.initialBalances[key] = val;
+                        saveState();
+                        renderAll();
+                        closeInitModal();
+                        showToast(`تم تحديث رصيد البداية لـ ${ACCOUNT_NAMES[key]}`);
+                    }
+                });
+
+                // Cash Audit Check & Reconcile
+                document.getElementById('btnCheckAudit').addEventListener('click', runCashAudit);
+                document.getElementById('inputActualCash').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        runCashAudit();
+                    }
+                });
+                document.getElementById('btnReconcileCash').addEventListener('click', reconcileCashDiscrepancy);
+
+                // Filters
+                document.getElementById('filterSearch').addEventListener('input', renderTransactionsList);
+                document.getElementById('filterAccount').addEventListener('change', renderTransactionsList);
+                document.getElementById('filterCategory').addEventListener('change', renderTransactionsList);
+
+                // Export JSON
+                document.getElementById('btnExportJson').addEventListener('click', () => {
+                    const dataStr = JSON.stringify(appState, null, 2);
+                    const blob = new Blob([dataStr], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    const datePart = getCurrentDateTimeLocal().slice(0, 10);
+                    a.href = url;
+                    a.download = `expat-wallet-backup-${datePart}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    URL.revokeObjectURL(url);
+                    showToast('تم تصدير ملف النسخة الاحتياطية بنجاح');
+                });
+
+                // Import JSON
+                const fileInput = document.getElementById('fileImportJson');
+                document.getElementById('btnImportTrigger').addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', (e) => {
+                    const file = e.target.files && e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        try {
+                            const imported = JSON.parse(ev.target.result);
+                            if (!imported || !imported.initialBalances || !Array.isArray(imported.transactions)) {
+                                throw new Error('Invalid format');
+                            }
+                            appState = {
+                                initialBalances: {
+                                    cash: roundJOD(imported.initialBalances.cash || 0),
+                                    wallet: roundJOD(imported.initialBalances.wallet || 0),
+                                    bank: roundJOD(imported.initialBalances.bank || 0)
+                                },
+                                transactions: imported.transactions
+                            };
+                            saveState();
+                            renderAll();
+                            showToast('تم استيراد النسخة الاحتياطية بنجاح');
+                        } catch (err) {
+                            showToast('ملف JSON غير صالح أو تالف', 'error');
+                        }
+                        fileInput.value = '';
+                    };
+                    reader.readAsText(file);
+                });
+
+                // Load Demo Data
+                document.getElementById('btnLoadDemo').addEventListener('click', () => {
+                    seedStarterTransactions();
+                    renderAll();
+                    showToast('تم تحميل البيانات التجريبية بنجاح', 'info');
+                });
+
+                // Reset All Data
+                document.getElementById('btnResetAll').addEventListener('click', () => {
+                    openConfirmModal(
+                        'تصفير جميع البيانات',
+                        'هل أنت متأكد من مسح جميع العمليات وتصفير أرصدة البداية؟ يُنصح بتصدير نسخة احتياطية أولاً.',
+                        () => {
+                            appState = {
+                                initialBalances: { cash: 0, wallet: 0, bank: 0 },
+                                transactions: []
+                            };
+                            saveState();
+                            renderAll();
+                            document.getElementById('auditResultContainer').classList.add('hidden');
+                            showToast('تم تصفير جميع البيانات بنجاح', 'info');
+                        }
+                    );
+                });
+
+                // Confirm Modal Buttons
+                document.getElementById('btnConfirmYes').addEventListener('click', () => {
+                    if (typeof pendingConfirmCallback === 'function') {
+                        pendingConfirmCallback();
+                    }
+                    closeConfirmModal();
+                });
+                document.getElementById('btnConfirmNo').addEventListener('click', closeConfirmModal);
+
+                // Mobile Tab Navigation
+                const mobileTabs = document.querySelectorAll('.mobile-tab-btn');
+                const secAdd = document.getElementById('sectionAddTransaction');
+                const secAudit = document.getElementById('sectionCashAudit');
+                const secHist = document.getElementById('sectionHistory');
+
+                function updateMobileView(activeTab) {
+                    if (window.innerWidth >= 768) {
+                        secAdd.classList.remove('hidden');
+                        secAudit.classList.remove('hidden');
+                        secHist.classList.remove('hidden');
+                        return;
+                    }
+                    secAdd.classList.toggle('hidden', activeTab !== 'tab-add');
+                    secAudit.classList.toggle('hidden', activeTab !== 'tab-audit');
+                    secHist.classList.toggle('hidden', activeTab !== 'tab-history');
+                }
+
+                mobileTabs.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const target = btn.getAttribute('data-mobile-tab');
+                        mobileTabs.forEach(b => {
+                            if (b === btn) {
+                                b.className = 'mobile-tab-btn flex-1 py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white transition';
+                            } else {
+                                b.className = 'mobile-tab-btn flex-1 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition';
+                            }
+                        });
+                        updateMobileView(target);
+                    });
+                });
+
+                window.addEventListener('resize', () => {
+                    const activeBtn = document.querySelector('.mobile-tab-btn.bg-emerald-600');
+                    const activeTab = activeBtn ? activeBtn.getAttribute('data-mobile-tab') : 'tab-add';
+                    updateMobileView(activeTab);
+                });
+                updateMobileView('tab-add');
+            }
+
+            // Initialize App
+            loadState();
+            initEvents();
+            renderAll();
+        })();
+    </script>
+</body>
+</html>
